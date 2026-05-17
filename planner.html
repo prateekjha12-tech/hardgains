@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workout Planner - Fitness Streams</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body onload="protectPageJWT();">
+
+<div class="animated-bg"></div>
+<div class="bg-glow"></div>
+
+<nav class="navbar">
+  <h1 class="logo glow">Fitness Streams</h1>
+
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="exercises.html">Exercises</a></li>
+    <li><a href="muscles.html">Muscles</a></li>
+    <li><a href="streaming.html">Streaming</a></li>
+    
+
+    <li class="dropdown">
+      <button class="dropbtn">More ▾</button>
+      <div class="dropdown-content">
+        <a href="planner.html">Workout Planner</a>
+        <a href="calories.html">Calories Calculator</a>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="contact.html">Contact</a>
+        <a href="progress.html">Progress Tracker</a>
+        <a href="account.html">My Account</a>
+      </div>
+    </li>
+  </ul>
+
+  <div class="menu-btn">☰</div>
+</nav>
+
+<section class="section">
+
+  <div class="page-head reveal">
+    <h2 class="glow">Workout Planner</h2>
+    <p>
+      Build your weekly workout plan and save it forever.  
+      Your plan will stay even after refresh.
+    </p>
+  </div>
+
+  <!-- INPUT FORM -->
+  <div class="card-3d reveal" style="max-width:900px; margin:auto; text-align:left;">
+
+    <h3 class="glow" style="margin-bottom:20px; text-align:center;">Add Workout</h3>
+
+    <div class="planner-form">
+
+      <select id="day">
+        <option style="color: black;"value="Monday">Monday</option>
+        <option style="color: black;"value="Tuesday">Tuesday</option>
+        <option style="color: black;"value="Wednesday">Wednesday</option>
+        <option style="color: black;"value="Thursday">Thursday</option>
+        <option style="color: black;"value="Friday">Friday</option>
+        <option style="color: black;"value="Saturday">Saturday</option>
+        <option style="color: black;"value="Sunday">Sunday</option>
+      </select>
+
+      <select id="muscle">
+        <option style="color: black;"value="Chest">Chest</option>
+        <option style="color: black;"value="Back">Back</option>
+        <option style="color: black;"value="Arms">Arms</option>
+        <option style="color: black;"value="Abs">Abs</option>
+        <option style="color: black;"value="Legs">Legs</option>
+        <option style="color: black;"value="Shoulders">Shoulders</option>
+        <option style="color: black;"value="Glutes">Glutes</option>
+        <option style="color: black;"value="Calves">Calves</option>
+        <option style="color: black;"value="Cardio">Cardio</option>
+          <option style="color: black;"value="Others">Others</option>
+      </select>
+
+      <input type="text" id="exercise" placeholder="Exercise Name (ex: Push-Ups)">
+      <input type="number" id="sets" placeholder="Sets (ex: 4)">
+      <input type="number" id="reps" placeholder="Reps (ex: 12)">
+
+      <button class="btn" style="width:100%;" onclick="addWorkout()">Add Workout</button>
+
+      <button class="btn" style="width:100%; background:linear-gradient(90deg,#00ffaa,#00aaff);" onclick="exportPDF()">
+  Export Plan as PDF 📄
+</button>
+
+      <button class="btn" style="width:100%; background:linear-gradient(90deg,#ff0033,#ff00aa);" onclick="resetPlan()">
+        Reset Full Plan
+      </button>
+
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="planner-output reveal">
+    <h2 class="glow" style="margin-bottom:20px;">📅 Your Weekly Plan</h2>
+    <div id="planContainer"></div>
+  </div>
+
+</section>
+
+<script src="script.js"></script>
+
+<script>
+let workoutPlan = JSON.parse(localStorage.getItem("workoutPlan")) || {};
+
+function savePlan() {
+  localStorage.setItem("workoutPlan", JSON.stringify(workoutPlan));
+}
+
+function addWorkout() {
+  let day = document.getElementById("day").value;
+  let muscle = document.getElementById("muscle").value;
+  let exercise = document.getElementById("exercise").value.trim();
+  let sets = document.getElementById("sets").value;
+  let reps = document.getElementById("reps").value;
+
+  if (exercise === "" || sets === "" || reps === "") {
+    alert("Enter exercise name, sets, and reps!");
+    return;
+  }
+
+  if (!workoutPlan[day]) {
+    workoutPlan[day] = [];
+  }
+
+  workoutPlan[day].push({
+    muscle: muscle,
+    exercise: exercise,
+    sets: sets,
+    reps: reps
+  });
+
+  savePlan();
+  renderPlan();
+
+  document.getElementById("exercise").value = "";
+  document.getElementById("sets").value = "";
+  document.getElementById("reps").value = "";
+}
+
+function deleteWorkout(day, index) {
+  workoutPlan[day].splice(index, 1);
+
+  if (workoutPlan[day].length === 0) {
+    delete workoutPlan[day];
+  }
+
+  savePlan();
+  renderPlan();
+}
+
+function resetPlan() {
+  if(confirm("Are you sure you want to reset your full plan?")) {
+    workoutPlan = {};
+    savePlan();
+    renderPlan();
+  }
+}
+
+function renderPlan() {
+  const container = document.getElementById("planContainer");
+  container.innerHTML = "";
+
+  const daysOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+  let hasData = false;
+
+  daysOrder.forEach(day => {
+    if (workoutPlan[day] && workoutPlan[day].length > 0) {
+      hasData = true;
+
+      let dayBox = document.createElement("div");
+      dayBox.classList.add("day-box");
+
+      let html = `<h3 class="glow">${day}</h3>`;
+
+      workoutPlan[day].forEach((w, index) => {
+        html += `
+          <div class="workout-item">
+            <div>
+              <b>${w.exercise}</b> <span style="opacity:0.8;">(${w.muscle})</span><br>
+              <span style="opacity:0.85;">Sets: ${w.sets} | Reps: ${w.reps}</span>
+            </div>
+
+            <button class="delete-btn" onclick="deleteWorkout('${day}', ${index})">✖</button>
+          </div>
+        `;
+      });
+
+      dayBox.innerHTML = html;
+      container.appendChild(dayBox);
+    }
+  });
+
+  if (!hasData) {
+    container.innerHTML = `<p style="opacity:0.7; text-align:center;">No plan yet. Add workouts above 🔥</p>`;
+  }
+}
+
+renderPlan();
+
+// export
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text("Fitness Streams - Workout Plan", 20, 20);
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+
+  let y = 35;
+
+  const daysOrder = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+  let hasData = false;
+
+  daysOrder.forEach(day => {
+    if (workoutPlan[day] && workoutPlan[day].length > 0) {
+      hasData = true;
+
+      doc.setFont("helvetica", "bold");
+      doc.text(day, 20, y);
+      y += 8;
+
+      doc.setFont("helvetica", "normal");
+
+      workoutPlan[day].forEach((w) => {
+        let line = `- ${w.exercise} (${w.muscle}) | Sets: ${w.sets} | Reps: ${w.reps}`;
+        doc.text(line, 25, y);
+        y += 7;
+
+        if (y > 280) {
+          doc.addPage();
+          y = 20;
+        }
+      });
+
+      y += 6;
+    }
+  });
+
+  if (!hasData) {
+    doc.text("No workouts added yet.", 20, y);
+  }
+
+  doc.save("FitnessStreams_WorkoutPlan.pdf");
+}
+</script>
+
+<script src="auth.js"></script>
+
+</body>
+</html>

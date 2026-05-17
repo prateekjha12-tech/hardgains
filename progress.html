@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Progress Tracker - Fitness Streams</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body onload="protectPageJWT(); initProgress();">
+
+<div class="animated-bg"></div>
+<div class="bg-glow"></div>
+
+<nav class="navbar">
+  <h1 class="logo glow">Fitness Streams</h1>
+
+  <ul class="nav-links">
+    <li><a href="home.html">Home</a></li>
+    <li><a href="streaming.html">Streaming</a></li>
+    <li><a href="planner.html">Planner</a></li>
+
+    <li class="dropdown">
+      <button class="dropbtn">More ▾</button>
+      <div class="dropdown-content">
+        <a href="progress.html">Progress Tracker</a>
+        <a href="calories.html">Calories Calculator</a>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="account.html">My Account</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </li>
+  </ul>
+
+  <button class="logout-btn" onclick="logoutUser()">Logout</button>
+</nav>
+
+<section class="section">
+
+  <div class="page-head reveal">
+    <h2 class="glow">Progress Tracker</h2>
+    <p>Track your weight, calories and workout streak like a real fitness app 🔥</p>
+  </div>
+
+  <!-- TOP STATS -->
+  <div class="progress-top reveal">
+
+    <div class="progress-card card-3d">
+      <h3 class="glow">🔥 Workout Streak</h3>
+      <p class="big-streak"><span id="streakCount">0</span> Days</p>
+      <p style="opacity:0.75;">Consistency builds results.</p>
+    </div>
+
+    <div class="progress-card card-3d">
+      <h3 class="glow">📌 Last Workout</h3>
+      <p id="lastWorkout" style="font-weight:900; font-size:1.2rem;">None</p>
+      <p style="opacity:0.75;">Last day you trained.</p>
+    </div>
+
+    <div class="progress-card card-3d">
+      <h3 class="glow">⚖️ Latest Weight</h3>
+      <p id="latestWeight" style="font-weight:900; font-size:1.2rem;">0 kg</p>
+      <p style="opacity:0.75;">Latest saved weight.</p>
+    </div>
+
+  </div>
+
+  <!-- FORM -->
+  <div class="card-3d reveal" style="max-width:900px; margin:auto; text-align:left;">
+    <h2 class="glow" style="text-align:center;">Add Today’s Progress</h2>
+
+    <div class="progress-form">
+      <input type="date" id="dateInput">
+      <input type="number" id="weightInput" placeholder="Weight (kg)">
+      <input type="number" id="caloriesInput" placeholder="Calories eaten (optional)">
+
+      <label class="workout-check">
+        <input type="checkbox" id="workoutDone">
+        Workout Done Today
+      </label>
+
+      <button class="btn" onclick="saveProgress()">Save Progress</button>
+      <button class="btn danger-btn" onclick="resetProgress()">Reset All Data</button>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="card-3d reveal" style="max-width:900px; margin:40px auto;">
+    <h2 class="glow" style="text-align:center;">📈 Weight Progress</h2>
+    <canvas id="weightChart" style="margin-top:25px;"></canvas>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="card-3d reveal" style="max-width:900px; margin:40px auto;">
+    <h2 class="glow" style="text-align:center;">📅 History</h2>
+    <div id="historyBox" class="history-box"></div>
+  </div>
+
+</section>
+
+<script src="script.js"></script>
+<script src="auth.js"></script>
+
+<script>
+let progressData = JSON.parse(localStorage.getItem("fs_progress")) || [];
+let chartInstance = null;
+
+function initProgress() {
+  // auto set today's date
+  const today = new Date().toISOString().split("T")[0];
+  document.getElementById("dateInput").value = today;
+
+  updateStats();
+  renderChart();
+  renderHistory();
+}
+
+function saveProgress() {
+  const date = document.getElementById("dateInput").value;
+  const weight = parseFloat(document.getElementById("weightInput").value);
+  const calories = parseFloat(document.getElementById("caloriesInput").value) || 0;
+  const workoutDone = document.getElementById("workoutDone").checked;
+
+  if (!date) {
+    alert("⚠️ Select a date.");
+    return;
+  }
+
+  if (!weight || weight <= 0) {
+    alert("⚠️ Enter valid weight.");
+    return;
+  }
+
+  // if entry exists for same date, overwrite
+  progressData = progressData.filter(item => item.date !== date);
+
+  progressData.push({
+    date: date,
+    weight: weight,
+    calories: calories,
+    workoutDone: workoutDone
+  });
+
+  progressData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  localStorage.setItem("fs_progress", JSON.stringify(progressData));
+
+  document.getElementById("weightInput").value = "";
+  document.getElementById("caloriesInput").value = "";
+  document.getElementById("workoutDone").checked = false;
+
+  updateStats();
+  renderChart();
+  renderHistory();
+
+  alert("✅ Progress Saved!");
+}
+
+function calculateStreak() {
+  let streak = 0;
+
+  const workoutDays = progressData
+    .filter(d => d.workoutDone === true)
+    .map(d => d.date);
+
+  if (workoutDays.length === 0) return 0;
+
+  const setDays = new Set(workoutDays);
+
+  let current = new Date();
+  let currentStr = current.toISOString().split("T")[0];
+
+  // if today not workout, check yesterday streak start
+  if (!setDays.has(currentStr)) {
+    current.setDate(current.getDate() - 1);
+    currentStr = current.toISOString().split("T")[0];
+  }
+
+  while (setDays.has(currentStr)) {
+    streak++;
+    current.setDate(current.getDate() - 1);
+    currentStr = current.toISOString().split("T")[0];
+  }
+
+  return streak;
+}
+
+function updateStats() {
+  const streak = calculateStreak();
+  document.getElementById("streakCount").innerText = streak;
+
+  const lastWorkout = [...progressData].reverse().find(d => d.workoutDone);
+  document.getElementById("lastWorkout").innerText = lastWorkout ? lastWorkout.date : "None";
+
+  const latest = progressData.length > 0 ? progressData[progressData.length - 1] : null;
+  document.getElementById("latestWeight").innerText = latest ? latest.weight + " kg" : "0 kg";
+}
+
+function renderChart() {
+  const ctx = document.getElementById("weightChart");
+
+  const labels = progressData.map(d => d.date);
+  const weights = progressData.map(d => d.weight);
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Weight (kg)",
+        data: weights,
+        borderWidth: 3,
+        tension: 0.35,
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: { color: "white" }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: "white" },
+          grid: { color: "rgba(255,255,255,0.08)" }
+        },
+        y: {
+          ticks: { color: "white" },
+          grid: { color: "rgba(255,255,255,0.08)" }
+        }
+      }
+    }
+  });
+}
+
+function renderHistory() {
+  const box = document.getElementById("historyBox");
+  box.innerHTML = "";
+
+  if (progressData.length === 0) {
+    box.innerHTML = `<p style="text-align:center; opacity:0.7;">No progress saved yet.</p>`;
+    return;
+  }
+
+  progressData.slice().reverse().forEach((d, index) => {
+    box.innerHTML += `
+      <div class="history-item">
+        <div>
+          <b>${d.date}</b><br>
+          <span style="opacity:0.8;">Weight: ${d.weight} kg</span><br>
+          <span style="opacity:0.8;">Calories: ${d.calories || "Not added"}</span><br>
+          <span style="opacity:0.8;">Workout: ${d.workoutDone ? "✅ Done" : "❌ Not done"}</span>
+        </div>
+        <button class="delete-btn" onclick="deleteEntry('${d.date}')">✖</button>
+      </div>
+    `;
+  });
+}
+
+function deleteEntry(date) {
+  progressData = progressData.filter(d => d.date !== date);
+  localStorage.setItem("fs_progress", JSON.stringify(progressData));
+
+  updateStats();
+  renderChart();
+  renderHistory();
+}
+
+function resetProgress() {
+  if (confirm("Are you sure you want to delete all progress data?")) {
+    progressData = [];
+    localStorage.removeItem("fs_progress");
+
+    updateStats();
+    renderChart();
+    renderHistory();
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Streaming - Fitness Streams</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="protectPageJWT();">
+
+<div class="animated-bg"></div>
+<div class="bg-glow"></div>
+
+<nav class="navbar">
+  <h1 class="logo glow">Fitness Streams</h1>
+
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="exercises.html">Exercises</a></li>
+    <li><a href="muscles.html">Muscles</a></li>
+    <li><a href="streaming.html">Streaming</a></li>
+     
+    <li class="dropdown">
+      <button class="dropbtn">More ▾</button>
+      <div class="dropdown-content">
+        <a href="planner.html">Workout Planner</a>
+        <a href="calories.html">Calories Calculator</a>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="contact.html">Contact</a>
+        <a href="progress.html">Progress Tracker</a>
+        <a href="account.html">My Account</a>
+      </div>
+    </li>
+  </ul>
+
+  <div class="menu-btn">☰</div>
+</nav>
+
+<section class="section">
+
+  <div class="page-head reveal">
+    <h2 class="glow">Streaming Zone</h2>
+    <p>Premium streaming workouts. Click a program and start training 🔥</p>
+  </div>
+
+  <!-- MAIN VIDEO PLAYER -->
+  <div class="stream-main reveal">
+    <div class="stream-player card-3d">
+
+      <div class="video-file-box">
+        <video id="mainVideo" controls controlsList="nodownload" autoplay muted>
+          <source src="videos/fullbody.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+
+        <div class="video-watermark">Fitness Streams</div>
+      </div>
+
+      <div class="stream-info">
+        <h2 id="videoTitle" class="glow">Full Body Workout</h2>
+        <p id="videoDesc">
+          Full body beginner workout session. Build strength and stamina.
+        </p>
+
+        <div class="stream-tags" id="videoTags">
+          <span class="tag">🔥 Trending</span>
+          <span class="tag">⚡ Beginner</span>
+          <span class="tag">💪 Strength</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PLAYLIST ROW -->
+  <div class="stream-row reveal">
+    <h3 class="row-title glow">🔥 Workout Playlist</h3>
+
+    <div class="stream-cards">
+
+      <div class="stream-card blue"
+        onclick="playFile('videos/fullbody.mp4','Full Body Workout','Perfect for beginners. Full body strength + cardio mix.','🔥 Trending • ⚡ Beginner • 💪 Strength')">
+        <h4>Full Body</h4>
+        <p>Beginner</p>
+      </div>
+
+      <div class="stream-card pink"
+        onclick="playFile('videos/chest.mp4','Chest & Triceps','Push workout for chest size and triceps power.','🫀 Chest • 💪 Strength • 🔥 Pump')">
+        <h4>Chest</h4>
+        <p>Push Day</p>
+      </div>
+
+      <div class="stream-card purple"
+        onclick="playFile('videos/back.mp4','Back & Biceps','Build a wide back with pull movements.','🦴 Back • 💪 Strength • ⚡ Pull')">
+        <h4>Back</h4>
+        <p>Pull Day</p>
+      </div>
+
+      <div class="stream-card green"
+        onclick="playFile('videos/legs.mp4','Leg Day Killer','Leg workout for squats, lunges, glutes and calves.','🦵 Legs • 🔥 Hardcore • ⚡ Power')">
+        <h4>Leg Day</h4>
+        <p>Hardcore</p>
+      </div>
+
+      <div class="stream-card yellow"
+        onclick="playFile('videos/abs.mp4','Abs Burner','Core training for abs definition and strength.','🥵 Abs • ⚡ Core • 🔥 Burn')">
+        <h4>Abs</h4>
+        <p>Core</p>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<script src="script.js"></script>
+
+<script>
+function playFile(filePath, title, desc, tags) {
+  const video = document.getElementById("mainVideo");
+
+  video.classList.add("fadeVideo");
+
+  setTimeout(() => {
+    video.src = filePath;
+    video.load();
+    video.play();
+
+    document.getElementById("videoTitle").innerText = title;
+    document.getElementById("videoDesc").innerText = desc;
+
+    let tagHTML = "";
+    tags.split("•").forEach(t => {
+      tagHTML += `<span class="tag">${t.trim()}</span>`;
+    });
+
+    document.getElementById("videoTags").innerHTML = tagHTML;
+
+    video.classList.remove("fadeVideo");
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 200);
+}
+
+/* Anti Right Click (basic protection) */
+document.addEventListener("contextmenu", (e) => e.preventDefault());
+</script>
+
+<script src="auth.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>

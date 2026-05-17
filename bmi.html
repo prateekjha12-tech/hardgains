@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMI Calculator - Fitness Streams</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="protectPageJWT();">
+
+<div class="loader">
+  <h1 class="glow">FITNESS STREAMS</h1>
+  <div class="bar"><span></span></div>
+</div>
+
+<div class="animated-bg"></div>
+<div class="bg-glow"></div>
+
+<div class="floating-icons">
+  <span>🏋️</span>
+  <span>💪</span>
+  <span>🔥</span>
+  <span>🥗</span>
+  <span>⚡</span>
+</div>
+
+<nav class="navbar">
+  <h1 class="logo glow">Fitness Streams</h1>
+
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="exercises.html">Exercises</a></li>
+    <li><a href="muscles.html">Muscles</a></li>
+    <li><a href="streaming.html">Streaming</a></li>
+     
+
+    <li class="dropdown">
+      <button class="dropbtn">More ▾</button>
+      <div class="dropdown-content">
+        <a href="planner.html">Workout Planner</a>
+        <a href="calories.html">Calories Calculator</a>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="contact.html">Contact</a>
+        <a href="progress.html">Progress Tracker</a>
+        <a href="account.html">My Account</a>
+      </div>
+    </li>
+  </ul>
+
+  <div class="menu-btn">☰</div>
+</nav>
+
+<section class="section">
+  <h2 class="page-title glow reveal">BMI Calculator</h2>
+
+  <p class="reveal" style="text-align:center; opacity:0.85; margin-bottom:25px;">
+    Check your BMI instantly. Track your fitness journey like a pro.
+  </p>
+
+  <div class="card-3d reveal" style="max-width:600px; margin:auto; text-align:center;">
+    
+    <h3 class="glow" style="margin-bottom:20px;">Enter Your Details</h3>
+
+    <input id="height" type="number" placeholder="Height (cm)" style="width:100%; margin-bottom:12px;">
+    <input id="weight" type="number" placeholder="Weight (kg)" style="width:100%; margin-bottom:12px;">
+
+    <button class="btn" onclick="calculateBMI()">Calculate BMI</button>
+
+    <div id="bmiResult" style="margin-top:25px; font-size:1.2rem; font-weight:700;"></div>
+    <div id="bmiCategory" style="margin-top:10px; font-size:1.1rem; opacity:0.9;"></div>
+
+  </div>
+</section>
+
+<script src="script.js"></script>
+
+<script>
+function calculateBMI() {
+  let height = document.getElementById("height").value;
+  let weight = document.getElementById("weight").value;
+
+  if(height === "" || weight === "" || height <= 0 || weight <= 0){
+    document.getElementById("bmiResult").innerHTML = "⚠️ Enter valid height and weight.";
+    document.getElementById("bmiCategory").innerHTML = "";
+    return;
+  }
+
+  height = height / 100; 
+  let bmi = weight / (height * height);
+  bmi = bmi.toFixed(2);
+
+  document.getElementById("bmiResult").innerHTML = "Your BMI: <span class='glow'>" + bmi + "</span>";
+
+  let category = "";
+
+  if(bmi < 18.5){
+    category = "🥶 Underweight";
+  }
+  else if(bmi >= 18.5 && bmi < 25){
+    category = "✅ Normal (Healthy)";
+  }
+  else if(bmi >= 25 && bmi < 30){
+    category = "⚠️ Overweight";
+  }
+  else{
+    category = "🚨 Obese";
+  }
+
+  document.getElementById("bmiCategory").innerHTML = "Category: <span class='glow'>" + category + "</span>";
+}
+</script>
+
+</body>
+</html>

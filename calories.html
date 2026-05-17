@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calories Calculator - Fitness Streams</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body onload="protectPageJWT();">
+
+<div class="animated-bg"></div>
+<div class="bg-glow"></div>
+
+<nav class="navbar">
+  <h1 class="logo glow">Fitness Streams</h1>
+
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="exercises.html">Exercises</a></li>
+    <li><a href="muscles.html">Muscles</a></li>
+    <li><a href="streaming.html">Streaming</a></li>
+     
+
+    <li class="dropdown">
+      <button class="dropbtn">More ▾</button>
+      <div class="dropdown-content">
+        <a href="planner.html">Workout Planner</a>
+        <a href="calories.html">Calories Calculator</a>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="contact.html">Contact</a>
+        <a href="progress.html">Progress Tracker</a>
+        <a href="account.html">My Account</a>
+      </div>
+    </li>
+   
+  </ul>
+  <div class="menu-btn">☰</div>
+</nav>
+
+<section class="section">
+
+  <div class="page-head reveal">
+    <h2 class="glow">Calories Calculator</h2>
+    <p>
+      Calculate your daily calories based on BMR and activity level.
+    </p>
+  </div>
+
+  <div class="card-3d reveal" style="max-width:650px; margin:auto; text-align:center;">
+
+    <input id="age" type="number" placeholder="Age" style="width:100%; margin-bottom:12px;">
+    <input id="height" type="number" placeholder="Height (cm)" style="width:100%; margin-bottom:12px;">
+    <input id="weight" type="number" placeholder="Weight (kg)" style="width:100%; margin-bottom:12px;">
+
+    <select id="gender" style="width:100%; margin-bottom:12px; padding:14px; border-radius:14px; border:none; background:rgba(255,255,255,0.09); color:white;">
+      <option style="color: black;"value="male">Male</option>
+      <option style="color: black;"value="female">Female</option>
+    </select>
+
+    <select id="activity" style="width:100%; margin-bottom:12px; padding:14px; border-radius:14px; border:none; background:rgba(255,255,255,0.09); color:white;">
+      <option style="color: black;"value="1.2">Sedentary (No exercise)</option>
+      <option style="color: black;"value="1.375">Light (1-3 days/week)</option>
+      <option style="color: black;"value="1.55">Moderate (3-5 days/week)</option>
+      <option style="color: black;"value="1.725">Active (6 days/week)</option>
+      <option style="color: black;"value="1.9">Very Active (2x/day training)</option>
+    </select>
+
+    <button class="btn" style="width:100%;" onclick="calculateCalories()">Calculate</button>
+
+    <div id="calResult" style="margin-top:25px; font-size:1.05rem; text-align:left; line-height:1.8;"></div>
+
+  </div>
+
+</section>
+
+<script src="script.js"></script>
+
+<script>
+function calculateCalories(){
+  let age = parseInt(document.getElementById("age").value);
+  let height = parseFloat(document.getElementById("height").value);
+  let weight = parseFloat(document.getElementById("weight").value);
+  let gender = document.getElementById("gender").value;
+  let activity = parseFloat(document.getElementById("activity").value);
+
+  if(!age || !height || !weight || age <= 0 || height <= 0 || weight <= 0){
+    document.getElementById("calResult").innerHTML = "⚠️ Please enter valid details.";
+    return;
+  }
+
+  let bmr;
+
+  // Mifflin-St Jeor Formula
+  if(gender === "male"){
+    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+  } else {
+    bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+  }
+
+  let maintenance = bmr * activity;
+  let bulk = maintenance + 300;
+  let cut = maintenance - 400;
+
+  document.getElementById("calResult").innerHTML = `
+    <h3 class="glow">📌 Results</h3><br>
+    <b>BMR:</b> ${bmr.toFixed(0)} kcal/day<br>
+    <b>Maintenance Calories:</b> ${maintenance.toFixed(0)} kcal/day<br><br>
+    <b>Bulking Calories:</b> ${bulk.toFixed(0)} kcal/day<br>
+    <b>Cutting Calories:</b> ${cut.toFixed(0)} kcal/day<br><br>
+    💡 Tip: Eat high protein (1.6-2.2g per kg bodyweight).
+  `;
+}
+</script>
+
+</body>
+</html>

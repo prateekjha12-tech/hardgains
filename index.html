@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Fitness Streams</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="animated-bg"></div>
+  <div class="bg-glow"></div>
+
+  <section class="auth-section">
+    <div class="auth-card card-3d reveal">
+
+      <h1 class="glow">Fitness Streams</h1>
+      <p class="auth-sub">Login to access your streaming workouts & planner.</p>
+
+      <form id="loginForm">
+        <input id="email" type="email" placeholder="Email" required />
+        <input id="password" type="password" placeholder="Password" required />
+
+        <a href="forgot-password.html" class="glow-link"
+           style="display:block; margin:12px 0; font-weight:800;">
+          Forgot Password?
+        </a>
+
+        <button class="btn auth-btn" type="submit">Login</button>
+      </form>
+
+      <p class="auth-bottom">
+        Don't have an account?
+        <a class="glow-link" href="signup.html">Sign up</a>
+      </p>
+
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value.trim();
+
+      try {
+        const res = await fetch("/.netlify/functions/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert("❌ " + data.message);
+          return;
+        }
+
+        localStorage.setItem("fs_token", data.token);
+        localStorage.setItem("fs_user", JSON.stringify(data.user));
+
+        alert("✅ Login Successful!");
+        window.location.replace("home.html");
+
+      } catch (err) {
+        alert("❌ Server Error. Try again.");
+        console.log(err);
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitness Streams</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="protectPageJWT(); loadNavbarUser();">
+
+<!-- LOADER -->
+<div class="loader">
+  <h1 class="glow">FITNESS STREAMS</h1>
+  <div class="bar"><span></span></div>
+</div>
+
+<div class="animated-bg"></div>
+<div class="bg-glow"></div>
+
+<div class="floating-icons">
+  <span>🏋️</span>
+  <span>💪</span>
+  <span>🔥</span>
+  <span>🥊</span>
+  <span>⚡</span>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <h1 class="logo glow">Fitness Streams</h1>
+
+  <ul class="nav-links">
+    <li><a href="home.html">Home</a></li>
+    <li><a href="exercises.html">Exercises</a></li>
+    <li><a href="muscles.html">Muscles</a></li>
+    <li><a href="streaming.html">Streaming</a></li>
+
+    <li class="dropdown">
+      <button class="dropbtn">More ▾</button>
+      <div class="dropdown-content">
+        <a href="planner.html">Workout Planner</a>
+        <a href="calories.html">Calories Calculator</a>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="contact.html">Contact</a>
+        <a href="progress.html">Progress Tracker</a>
+        <a href="account.html">My Account</a>
+      </div>
+    </li>
+  </ul>
+
+  <!-- USER DROPDOWN (ONLY MY ACCOUNT + LOGOUT) -->
+  <div class="user-dropdown">
+    <button class="user-btn" id="userBtn">
+      <img id="navPfp" src="defaultpfp.jpeg" class="nav-pfp">
+      <span id="navName">Account</span>
+      <span class="arrow">▾</span>
+    </button>
+
+    <div class="user-menu" id="userMenu">
+      <a href="account.html">👤 My Account</a>
+      <button class="logout-btn2" onclick="logoutJWT()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <div class="menu-btn">☰</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero section">
+  <div class="hero-text reveal">
+    <h1 class="glow">Train Hard.<br> Gain Hardness.</h1>
+    <p>
+      Welcome to <b>Fitness Streams</b> — a Gen-Z fitness hub with
+      workouts, muscle targeting and streaming training videos.
+    </p>
+    <a href="exercises.html" class="btn">Explore Workouts</a>
+  </div>
+
+  <div class="pushup-man card-3d glow reveal">💪</div>
+</section>
+
+<!-- WHY SECTION -->
+<section class="section reveal">
+  <h2 class="page-title glow">Why Fitness Streams?</h2>
+
+  <div class="grid">
+    <div class="card-3d exercise-card">
+      <h3 class="glow">🔥 Home + Gym Workouts</h3>
+      <p>Push your limits anywhere. Full body and split workouts.</p>
+    </div>
+
+    <div class="card-3d exercise-card">
+      <h3 class="glow">💯 Muscle Targeting</h3>
+      <p>Chest, arms, abs, legs, back — all workouts organised.</p>
+    </div>
+
+    <div class="card-3d exercise-card">
+      <h3 class="glow">🎥 Streaming Training</h3>
+      <p>Watch workout videos in our streaming zone with clean UI.</p>
+    </div>
+  </div>
+</section>
+
+<!-- READY TO TRANSFORM CTA CARD -->
+<section class="section reveal">
+  <div class="cta-box card-3d">
+    <h2 class="glow">Ready to transform?</h2>
+    <p>
+      Build your plan, start streaming workouts, and track your progress like a real athlete.
+    </p>
+    <a href="planner.html" class="btn">Start Planning Now</a>
+  </div>
+</section>
+
+<script src="script.js"></script>
+
+<script>
+function protectPageJWT() {
+  const token = localStorage.getItem("fs_token");
+  if (!token) {
+    window.location.href = "login.html";
+  }
+}
+
+function loadNavbarUser() {
+  const user = JSON.parse(localStorage.getItem("fs_user"));
+  if (!user) return;
+
+  document.getElementById("navName").innerText = user.name || "User";
+
+  if (user.profilePic && user.profilePic.length > 20) {
+    document.getElementById("navPfp").src = user.profilePic;
+  } else {
+    document.getElementById("navPfp").src = "defaultpfp.jpeg";
+  }
+}
+
+// dropdown toggle
+document.addEventListener("click", function(e){
+  const btn = document.getElementById("userBtn");
+  const menu = document.getElementById("userMenu");
+
+  if(btn.contains(e.target)){
+    menu.classList.toggle("show");
+  } else {
+    menu.classList.remove("show");
+  }
+});
+
+function logoutJWT() {
+  localStorage.removeItem("fs_token");
+  localStorage.removeItem("fs_user");
+  window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>
