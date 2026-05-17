@@ -49,7 +49,22 @@
     </li>
   </ul>
 
+  <!-- USER DROPDOWN (ONLY MY ACCOUNT + LOGOUT) -->
+  <div class="user-dropdown">
+    <button class="user-btn" id="userBtn">
+      <img id="navPfp" src="defaultpfp.jpeg" class="nav-pfp">
+      <span id="navName">Account</span>
+      <span class="arrow">▾</span>
+    </button>
 
+    <div class="user-menu" id="userMenu">
+      <a href="account.html">👤 My Account</a>
+      <button class="logout-btn2" onclick="logoutJWT()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <div class="menu-btn">☰</div>
+</nav>
 
 <!-- HERO -->
 <section class="hero section">
